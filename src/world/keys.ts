@@ -32,8 +32,8 @@ export const FIELDS = Object.keys(WORLD_KEYS.hero) as (keyof WorldState)[];
 
 /** Blended by the float `mood`. Sky colors live in CSS so the canvas can be transparent. */
 export const MOODS = [
-  { sun: 0xfff0d6, sunI: 1.02, amb: 0x8d6f58, fog: 0xb4dcf2, sunDir: [0.55, 0.3, 0.45], wind: 0.7 },
-  { sun: 0xfff6dc, sunI: 1.02, amb: 0x6f8476, fog: 0xc6e6ee, sunDir: [0.4, 0.8, 0.2],  wind: 1 },
+  { sun: 0xd8d6b4, sunI: 0.84, amb: 0x4b4d44, fog: 0x60665a, sunDir: [0.5, 0.42, 0.5], wind: 0.7 },
+  { sun: 0xfff6dc, sunI: 1.02, amb: 0x6f8476, fog: 0xc0d6b8, sunDir: [0.4, 0.8, 0.2],  wind: 1 },
   { sun: 0xffb56b, sunI: 1.08, amb: 0x5e5552, fog: 0xe0a06a, sunDir: [-0.7, 0.26, 0.2], wind: 0.8 },
   { sun: 0x7ea3c6, sunI: 0.36, amb: 0x1f3a38, fog: 0x0a1f1d, sunDir: [-0.3, 0.6, -0.4], wind: 0.5 },
 ];

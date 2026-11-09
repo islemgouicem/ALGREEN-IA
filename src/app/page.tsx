@@ -24,8 +24,7 @@ export default function Home() {
   return (
     <div className="home">
       <div className="loader" aria-hidden="true">
-        <RingArt seed={7} count={12} className="loader__ring" />
-        <p>Germinating</p>
+        <Image src="/img/photos/algreenia-2.png" alt="" width={1024} height={1024} sizes="(max-width: 800px) 92vmin, 720px" priority className="loader__crest" />
       </div>
       <WorldStage />
       <HomeMotion />
@@ -277,6 +276,18 @@ export default function Home() {
               <blockquote><b>Limit shower time.</b> Try setting a five-minute timer to reduce water use.</blockquote>
             </article>
           </div>
+        </div>
+      </section>
+
+      {/* ------- Crest ------- */}
+      <section className="crest" data-cover aria-labelledby="crest-title">
+        <div className="crest__in">
+          <div className="crest__glow" aria-hidden="true" />
+          <h2 id="crest-title" className="sr">Algreenia</h2>
+          <div className="crest__art">
+            <Image src="/img/photos/algreenia-2.png" alt="The name Algreenia in letters of living leaves, wrapped in woven vines" fill sizes="(max-width: 800px) 118vw, 1120px" />
+          </div>
+          <p className="crest__line">Where every tree tells a story.</p>
         </div>
       </section>
 

@@ -1,7 +1,8 @@
 :root {
+  --crest: #1e2d13;
   --paper: #f4f8f5; --panel: #dceae3; --line: #aec6ba; --line-strong: #6b8d7d;
   --clay: #b23c12; --sun: #ff5a1f;
-  --cobalt: #1746d1; --cobalt-deep: #0c2f9f;
+  --deep: #0d2a1a; 
   --ink: #0e1f1a; --ink-2: #39514a;
   --moss-950: #081710; --moss-900: #0d2118; --moss-800: #143323; --moss-700: #1c4a2f; --moss-500: #3f7a3d;
   --leaf: #b4dc4f; --pollen: #f2c230; --bloom: #ef5d86; --rain: #5f8791; --rain-deep: #2a4850;

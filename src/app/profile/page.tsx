@@ -7,7 +7,7 @@ export const metadata: Metadata = { title: "My profile" };
 export default function Page() {
   return (
     <>
-      <PageHero eyebrow="Account" title="My profile" tone="cobalt" seed={81} />
+      <PageHero eyebrow="Account" title="My profile" tone="canopy" seed={81} />
       <div className="wrap pagebody"><ProfileView /></div>
     </>
   );

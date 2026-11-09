@@ -58,13 +58,13 @@ export const STORIES = [
 export const TEAM = [
   { name: "Haithem Bouziane", role: "Web Developer", tag: "Creative Designer", note: "Brings creativity and innovation to every project, so the result is unique and has real impact.", image: "/img/ana.jpg" },
   { name: "Enzo Chaabnia", role: "Frontend Developer", tag: "JavaScript Enthusiast", note: "With a strong foundation in JavaScript, delivers web applications that feel seamless.", image: "/img/ENZO.jpg" },
-  { name: "Salah Badreddine", role: "Backend Developer", tag: "Backend Specialist", note: "Keeps data handling and servers efficient, powering the core of the platform.", image: "/img/SALAH.jpg" },
-  { name: "Islam Gouicem", role: "Full-Stack Developer", tag: "Full-Stack Engineer", note: "Combines frontend and backend to solve problems at every layer of the product.", image: "/img/ISLAM.jpg" },
+  { name: "Salah Badreddine", role: "Backend Developer", tag: "Backend Specialist", note: "Keeps data handling and servers efficient, powering the core of the platform.", image: "/img/salah.jpeg" },
+  { name: "Islem Gouicem", role: "Full-Stack Developer", tag: "Full-Stack Engineer", note: "Combines frontend and backend to solve problems at every layer of the product.", image: "/img/ISLAM.jpg" },
 ];
 
 export const CONTRIBUTORS = [
   { rank: 1, name: "Salah Badreddine", wilaya: "Algiers", trees: 100, image: "/img/salah.jpeg" },
-  { rank: 2, name: "Islem Gouicem", wilaya: "Biskra", trees: 75, image: "/img/islem.jpeg" },
+  { rank: 2, name: "Islem Gouicem", wilaya: "Biskra", trees: 75, image: "/img/ISLAM.jpg" },
   { rank: 3, name: "Chaabnia Enzo", wilaya: "Annaba", trees: 50, image: "/img/enzo.jpeg" },
 ];
 

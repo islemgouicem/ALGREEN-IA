@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   description: "Algreenia helps communities across Algeria plant, water and measure trees, from the first seed to a living forest.",
 };
 
-export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#1746D1" };
+export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#0A1511" };
 
 // Runs before first paint. Content is only hidden for animation when animation will really run.
 const boot = `(function(){try{var d=document.documentElement,o=localStorage.getItem('algreenia:motion'),r=matchMedia('(prefers-reduced-motion: reduce)').matches;if(o==='on'||(o!=='off'&&!r)){d.classList.add('has-motion');window.__motionTimer=setTimeout(function(){d.classList.remove('has-motion')},9000)}else{d.classList.add('no-motion')}}catch(e){}})()`;

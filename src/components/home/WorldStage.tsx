@@ -108,10 +108,7 @@ export function WorldStage() {
         for (let s = 1; s < SKY_LAYERS; s++) sky[s].style.opacity = String(clamp(cur.mood - (s - 1)));
         sky[SKY_LAYERS].style.opacity = String(cur.rain);
         if (sunRef.current) {
-          const dawn = 1 - clamp(cur.mood * 1.2);
-          const dusk = clamp(1 - Math.abs(cur.mood - 2) * 1.8) * (1 - cur.rain);
-          sunRef.current.style.opacity = String(Math.max(dawn, dusk));
-          sunRef.current.style.transform = `translate3d(0, ${(1 - dawn) * 18 + y * -0.02}vh, 0)`;
+          sunRef.current.style.opacity = String(1 - clamp(cur.mood * 1.5));
         }
 
         const canopy = Math.round(clamp((60 - cur.front) / 420) * 92 + 4 * clamp((90 - cur.front) / 30));
@@ -153,11 +150,11 @@ export function WorldStage() {
       <div className="sky" ref={skyRef}>
         <i className="sky--dawn" /><i className="sky--day" /><i className="sky--dusk" /><i className="sky--night" /><i className="sky--storm" />
       </div>
-      <div className="sun" ref={sunRef} />
+      <div className="shaft" ref={sunRef} />
       <svg className="dunes" viewBox="0 0 1600 500" preserveAspectRatio="xMidYMax slice">
-        <path d="M0 260C200 150 420 130 640 220S1100 330 1600 170V500H0Z" fill="#E3B57B" />
-        <path d="M0 360C300 250 520 300 760 350S1260 420 1600 290V500H0Z" fill="#C98F55" />
-        <path d="M0 430C260 380 620 390 900 440S1400 470 1600 420V500H0Z" fill="#A86C3B" />
+        <path d="M0 250L120 190 210 232 340 150 450 226 610 196 760 262 930 214 1090 268 1260 176 1410 240 1600 190V500H0Z" fill="#4d4a3d" />
+        <path d="M0 350L240 322 480 358 760 330 1040 366 1320 334 1600 356V500H0Z" fill="#3a352a" />
+        <path d="M0 430L300 412 640 438 980 416 1300 440 1600 420V500H0Z" fill="#29251c" />
       </svg>
       <canvas ref={canvasRef} className="world" />
     </div>

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowUp, ChevronDown, Menu, MessageCircle, Sprout, UserRound, X } from "lucide-react";
@@ -11,10 +10,7 @@ import { logout, toast, useApp } from "@/lib/store";
 
 export function Logo() {
   return (
-    <Link href="/" className="seal" aria-label="Algreenia home">
-      <Image src="/img/emblem.png" alt="" width={52} height={52} priority />
-      <span>Algreenia</span>
-    </Link>
+    <Link href="/" className="tag-link tag-link--word" aria-label="Algreenia home">Algreenia</Link>
   );
 }
 
@@ -128,7 +124,7 @@ export function Header() {
           <path d="M1340 34c-14-14-10-28 6-34 11 14 10 26-6 34Z" />
         </svg>
         <div className="bough__row">
-          <div className="twig twig--seal"><Logo /></div>
+          <div className="twig twig--seal" style={{ "--drop": "32px" } as React.CSSProperties}><Logo /></div>
           <nav aria-label="Primary" className="bough__nav">
             <ul>
               {NAV.map((l, i) => (

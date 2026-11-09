@@ -26,8 +26,12 @@ export function HomeMotion() {
     let seen = false;
     try { seen = Boolean(sessionStorage.getItem("algreenia:seen")); } catch { /* ignore */ }
     if (seen && loader) loader.style.display = "none";
-    window.addEventListener("world:ready", heroIn, { once: true });
-    const failsafe = window.setTimeout(heroIn, 3200);
+    // The crest gets a real moment on a first visit, even if the world is ready sooner
+    const shownAt = performance.now();
+    let hold = 0;
+    const onReady = () => { hold = window.setTimeout(heroIn, seen ? 0 : Math.max(0, 2000 - (performance.now() - shownAt))); };
+    window.addEventListener("world:ready", onReady, { once: true });
+    const failsafe = window.setTimeout(heroIn, 3600);
 
     const mm = gsap.matchMedia();
     const ctx = gsap.context(() => {
@@ -63,6 +67,12 @@ export function HomeMotion() {
         }
         if (i < all.length - 1) trunk.to(stat, { autoAlpha: 0, y: -34, duration: 0.07, ease: "power3.in" }, at + 0.2);
       });
+
+      // The crest grows out from the heart of its vines
+      const crest = gsap.timeline({ scrollTrigger: { trigger: ".crest", start: "top top", end: "bottom bottom", scrub: 1 } });
+      crest.fromTo(".crest__art", { clipPath: "circle(4% at 50% 60%)", scale: 0.86 }, { clipPath: "circle(74% at 50% 50%)", scale: 1.04, ease: "none", duration: 0.78 }, 0)
+        .fromTo(".crest__glow", { opacity: 0 }, { opacity: 1, ease: "none", duration: 0.6 }, 0.1)
+        .fromTo(".crest__line", { autoAlpha: 0, y: 26 }, { autoAlpha: 1, y: 0, ease: "power3.out", duration: 0.18 }, 0.72);
 
       // Vine that climbs as you read
       gsap.fromTo(".stem__line", { strokeDashoffset: 1 }, {
@@ -119,7 +129,8 @@ export function HomeMotion() {
 
     return () => {
       window.clearTimeout(failsafe);
-      window.removeEventListener("world:ready", heroIn);
+      window.clearTimeout(hold);
+      window.removeEventListener("world:ready", onReady);
       mm.revert();
       ctx.revert();
     };

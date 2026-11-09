@@ -14,14 +14,18 @@ const n = createNoise2D(19);
 export const pathX = (z: number) => Math.sin(z * 0.012) * 14 + Math.sin(z * 0.031 + 1) * 5 - (Math.sin(1) * 5 + 0);
 
 export function heightAt(x: number, z: number) {
-  const r1 = 1 - Math.abs(n(x * 0.016 + 3, z * 0.026));
-  const r2 = 1 - Math.abs(n(x * 0.041 - 9, z * 0.06 + 4));
-  const dune = r1 * r1 * 10.5 + r2 * r2 * 2.2;
+  const d = Math.abs(x - pathX(z));
+  // Barren plain: low swells, shallow erosion, and broken rock ridges at the edges
+  const roll = (n(x * 0.021 + 3, z * 0.021) + 0.5 * n(x * 0.06 - 9, z * 0.06 + 4)) * 2.3 + 2.2;
+  const ridge = 1 - Math.abs(n(x * 0.013 + 20, z * 0.017 - 8));
+  const crag = Math.pow(ridge, 3) * 27 * smoothstep(20, 76, d);
+  const jag = Math.abs(n(x * 0.09 + 40, z * 0.09)) * 2.4 * smoothstep(24, 70, d);
+  const barren = roll + crag + jag;
   const hill = (n(x * 0.011, z * 0.011) + 0.5 * n(x * 0.03 + 7, z * 0.03)) * 9 + 4;
-  const k = smoothstep(-20, -130, z);
-  const raw = dune * (1 - k) + hill * k;
-  const corridor = smoothstep(6, 44, Math.abs(x - pathX(z)));
-  return raw * (0.34 + 0.66 * corridor);
+  const k = smoothstep(-50, -160, z);
+  const raw = barren * (1 - k) + hill * k;
+  const corridor = smoothstep(6, 44, d);
+  return raw * (0.42 + 0.58 * corridor);
 }
 
 export interface Quality {
@@ -69,7 +73,7 @@ export class World {
     this.camera = new THREE.PerspectiveCamera(46, 1, 0.4, 340);
 
     const shared = {
-      uFog: { value: new THREE.Color(0xb4dcf2) },
+      uFog: { value: new THREE.Color(0x60665a) },
       uFogNear: { value: 70 },
       uFogFar: { value: 230 },
       uSunCol: { value: new THREE.Color(0xffffff) },
@@ -83,10 +87,11 @@ export class World {
     this.terrainU = { ...shared, uWet: { value: 0 } };
     this.grassU = { ...shared };
     this.rainU = { uTime: shared.uTime, uRain: { value: 0 }, uCam: { value: new THREE.Vector3() } };
-    this.moteU = { uTime: shared.uTime, uCam: this.rainU.uCam, uPetals: { value: 0 }, uNight: { value: 0 }, uPx: { value: 1 } };
+    this.moteU = { uTime: shared.uTime, uCam: this.rainU.uCam, uPetals: { value: 0 }, uNight: { value: 0 }, uPx: { value: 1 }, uDust: { value: 1 } };
 
     this.buildTerrain();
     this.buildTrees();
+    this.buildRocks();
     this.buildGrass();
     this.buildFlowers();
     this.buildRain();
@@ -122,18 +127,42 @@ export class World {
           return mix(mix(hash(i), hash(i + vec2(1, 0)), f.x), mix(hash(i + vec2(0, 1)), hash(i + vec2(1, 1)), f.x), f.y);
         }
         float fbm(vec2 p) { return vn(p) * 0.6 + vn(p * 2.1 + 3.1) * 0.28 + vn(p * 4.3 + 7.7) * 0.12; }
+        vec2 voro(vec2 p) {
+          vec2 i = floor(p), f = fract(p);
+          float a = 8.0, b = 8.0;
+          for (int y = -1; y <= 1; y++) for (int x = -1; x <= 1; x++) {
+            vec2 g = vec2(float(x), float(y));
+            vec2 r = g + vec2(hash(i + g), hash(i + g + 17.1)) - f;
+            float d = dot(r, r);
+            if (d < a) { b = a; a = d; } else if (d < b) { b = d; }
+          }
+          return sqrt(vec2(a, b));
+        }
         void main() {
           vec3 n = normalize(vN);
-          float warp = vn(vW.xz * 0.2) * 7.0;
-          float rip = sin(vW.x * 0.55 + vW.z * 1.5 + warp);
-          vec3 nn = normalize(n + vec3(rip * 0.05, 0.0, rip * 0.11));
+          vec3 nn = n;
           float pat = fbm(vW.xz * 0.045);
-          vec3 sand = mix(vec3(0.73, 0.49, 0.28), vec3(0.97, 0.80, 0.56), smoothstep(0.25, 0.8, pat + n.y * 0.25 - 0.1));
+          float mott = fbm(vW.xz * 0.34 + 5.0);
+          // Dry, ashen earth, with bare rock wherever the ground gets steep
+          vec3 earth = mix(vec3(0.33, 0.28, 0.22), vec3(0.58, 0.5, 0.4), smoothstep(0.28, 0.76, pat * 0.55 + mott * 0.5));
+          earth = mix(earth, vec3(0.3, 0.29, 0.27), smoothstep(0.93, 0.72, n.y));
           float f = smoothstep(0.0, 26.0, vW.z - uFront + (pat - 0.5) * 46.0);
+          float d0 = length(vW - cameraPosition);
+          if (f < 0.995 && d0 < 90.0) {
+            // Ground split into dried-mud plates
+            float near = 1.0 - smoothstep(26.0, 88.0, d0);
+            vec2 big = voro(vW.xz * 0.62 + vn(vW.xz * 0.3) * 0.7);
+            vec2 fine = voro(vW.xz * 1.9 + 11.0);
+            float crack = 1.0 - smoothstep(0.015, 0.085, big.y - big.x);
+            float hair = 1.0 - smoothstep(0.01, 0.05, fine.y - fine.x);
+            float mud = smoothstep(0.42, 0.62, fbm(vW.xz * 0.06 + 23.0)) * smoothstep(0.86, 0.96, n.y);
+            earth *= 1.0 + (big.x - 0.32) * 0.26 * near * mud;
+            earth *= 1.0 - (crack * 0.8 + hair * 0.3 * (1.0 - smoothstep(10.0, 34.0, d0))) * near * mud;
+          }
           float pat2 = fbm(vW.xz * 0.11 + 11.0);
           vec3 grass = mix(vec3(0.12, 0.27, 0.13), vec3(0.42, 0.56, 0.2), pat2);
           grass = mix(grass, vec3(0.69, 0.68, 0.24), smoothstep(0.58, 0.8, fbm(vW.xz * 0.024 + 41.0)) * 0.5);
-          vec3 alb = mix(sand, grass, f);
+          vec3 alb = mix(earth, grass, f);
           alb *= 1.0 - uWet * 0.2;
           float ndl = max(dot(nn, uSun), 0.0);
           vec3 lit = alb * (uAmb + uSunCol * ndl);
@@ -153,7 +182,7 @@ export class World {
   private buildTrees() {
     const r = mulberry32(2024);
     const cap = this.q.perSpecies;
-    const placements: Record<SpeciesId, [number, number, number][]> = { oak: [], pine: [], acacia: [], almond: [], cedar: [], palm: [] };
+    const placements: Record<SpeciesId, [number, number, number][]> = { oak: [], pine: [], acacia: [], almond: [], cedar: [], palm: [], snag: [] };
 
     // The first tree. It stands alone in the opening chapter.
     placements.oak.push([pathX(4) + 3.2, 4, 1.4]);
@@ -187,6 +216,78 @@ export class World {
       this.scene.add(draw.group);
       this.draws.push({ id, draw, base: list.length, planted: 0, peak: 0 });
     });
+
+    // Dead snags and dry scrub. Born dead, and gone once the green passes them.
+    const snags: [number, number, number][] = [[pathX(16) - 11, 16, 1.25], [pathX(-14) + 15, -14, 1.05], [pathX(-30) - 19, -30, 1.35]];
+    const scrub = this.q.perSpecies < 60 ? 42 : 96;
+    for (let i = 0; i < scrub; i++) {
+      const z = 56 - r() * 150;
+      const x = pathX(z) + (r() > 0.5 ? 1 : -1) * (4 + Math.pow(r(), 1.2) * 46);
+      snags.push([x, z, i % 9 === 0 ? 0.7 + r() * 0.5 : 0.16 + r() * 0.2]);
+    }
+    const dead = createTreeDraw(buildTemplate("snag", 1, 17), snags.length, this.treeU);
+    snags.forEach(([x, z, sc], i) => dead.setInstance(i, x, heightAt(x, z) - 0.1, z, r() * 6.28, sc, r(), -2));
+    dead.setCount(snags.length);
+    this.scene.add(dead.group);
+    this.disposables.push(dead);
+  }
+
+  /** Stones scattered over the bare ground. Moss creeps over them once the forest arrives. */
+  private buildRocks() {
+    const count = this.q.perSpecies < 60 ? 150 : 420;
+    const r = mulberry32(31);
+    const base = new THREE.IcosahedronGeometry(1, 1);
+    const p = base.attributes.position as THREE.BufferAttribute;
+    for (let i = 0; i < p.count; i++) {
+      const k = 0.72 + Math.abs(n(p.getX(i) * 2.1 + 3, p.getZ(i) * 2.1 + p.getY(i) * 2)) * 0.62;
+      p.setXYZ(i, p.getX(i) * k, p.getY(i) * k * 0.62, p.getZ(i) * k);
+    }
+    const geo = new THREE.InstancedBufferGeometry();
+    geo.setAttribute("position", p);
+    const off = new Float32Array(count * 4);
+    for (let i = 0; i < count; i++) {
+      const z = 62 - Math.pow(r(), 0.8) * 190;
+      const x = pathX(z) + (r() > 0.5 ? 1 : -1) * (2.5 + Math.pow(r(), 1.3) * 42);
+      const size = 0.12 + Math.pow(r(), 3.2) * 1.5;
+      off.set([x, heightAt(x, z) + size * 0.05, z, size], i * 4);
+    }
+    geo.setAttribute("aO", new THREE.InstancedBufferAttribute(off, 4));
+    geo.instanceCount = count;
+    const mat = new THREE.ShaderMaterial({
+      uniforms: { ...this.grassU },
+      transparent: true,
+      vertexShader: /* glsl */ `
+        attribute vec4 aO;
+        varying vec3 vW; varying float vSeed;
+        void main() {
+          float a = aO.x * 3.1 + aO.z * 1.7;
+          float c = cos(a), s = sin(a);
+          vec3 p = position * aO.w;
+          p = vec3(c * p.x - s * p.z, p.y, s * p.x + c * p.z);
+          vW = p + aO.xyz;
+          vSeed = fract(aO.x * 7.3);
+          gl_Position = projectionMatrix * viewMatrix * vec4(vW, 1.0);
+        }`,
+      fragmentShader: /* glsl */ `
+        uniform vec3 uFog, uSunCol, uAmb, uSun;
+        uniform float uFront, uFogNear, uFogFar;
+        varying vec3 vW; varying float vSeed;
+        void main() {
+          vec3 nrm = normalize(cross(dFdx(vW), dFdy(vW)));
+          if (nrm.y < 0.0) nrm = -nrm;
+          vec3 alb = mix(vec3(0.27, 0.25, 0.22), vec3(0.45, 0.41, 0.35), vSeed);
+          float moss = smoothstep(0.0, 30.0, vW.z - uFront) * smoothstep(0.3, 0.9, nrm.y);
+          alb = mix(alb, vec3(0.24, 0.37, 0.16), moss * 0.8);
+          vec3 lit = alb * (uAmb + uSunCol * max(dot(nrm, uSun), 0.0));
+          float d = length(vW - cameraPosition);
+          gl_FragColor = vec4(mix(lit, uFog, smoothstep(uFogNear, uFogFar, d) * 0.88), 1.0 - smoothstep(uFogFar * 0.8, uFogFar * 1.05, d));
+        }`,
+    });
+    const m = new THREE.Mesh(geo, mat);
+    m.frustumCulled = false;
+    m.renderOrder = 2;
+    this.scene.add(m);
+    this.disposables.push(geo, base, mat);
   }
 
   private buildGrass() {
@@ -355,7 +456,7 @@ export class World {
       transparent: true,
       depthWrite: false,
       vertexShader: /* glsl */ `
-        attribute vec4 aD; uniform float uTime, uPetals, uNight, uPx; uniform vec3 uCam;
+        attribute vec4 aD; uniform float uTime, uPetals, uNight, uPx, uDust; uniform vec3 uCam;
         varying vec3 vC; varying float vA; varying float vPetal;
         void main() {
           float t = uTime * (0.25 + aD.w * 0.3);
@@ -370,7 +471,8 @@ export class World {
           float isPetal = step(aD.w, 0.5);
           vPetal = 1.0 - uNight;
           vC = mix(mix(vec3(0.96, 0.46, 0.6), vec3(0.98, 0.84, 0.42), step(0.28, aD.w)), vec3(0.85, 1.0, 0.42), uNight);
-          vA = mix(uPetals * 0.9 * (isPetal * 0.7 + 0.3), blink, uNight);
+          vC = mix(vC, vec3(0.74, 0.69, 0.57), uDust);
+          vA = mix(mix(uPetals * 0.9 * (isPetal * 0.7 + 0.3), 0.4 + aD.w * 0.3, uDust), blink, uNight);
           gl_PointSize = clamp(uPx * mix(70.0, 150.0, uNight) / max(1.0, -mv.z), 0.0, 26.0);
         }`,
       fragmentShader: /* glsl */ `
@@ -470,6 +572,7 @@ export class World {
     this.rainU.uRain.value = s.rain;
     this.moteU.uPetals.value = s.petals;
     this.moteU.uNight.value = smoothstep(2.25, 2.9, s.mood);
+    this.moteU.uDust.value = 1 - smoothstep(0.15, 0.7, s.mood);
 
     // Camera rides the corridor; ground follows its own curve so it never clips a dune
     this.pointerS.lerp(this.pointer, 1 - Math.exp(-dt * 3.2));

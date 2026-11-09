@@ -3,16 +3,17 @@
  sky, sun (0) · hero title (1) · dunes/canvas (2) · every chapter (3)
  The hero title is real DOM text that sits BEHIND the WebGL dunes.
 */
-.sky, .sun, .world, .dunes { position: fixed; pointer-events: none; }
+.sky, .shaft, .world, .dunes { position: fixed; pointer-events: none; }
 .sky { inset: 0; z-index: 0; }
 .sky i { position: absolute; inset: 0; opacity: 0; will-change: opacity; }
 .sky i:first-child { opacity: 1; }
-.sky--dawn { background: linear-gradient(180deg, #0c37b4 0%, #1f62dd 46%, #8fd0f3 100%); }
+.sky--dawn { background: linear-gradient(180deg, #0a1511 0%, #18251f 36%, #4f5549 58%, #6e7263 72%, #3f3f35 100%); }
 .sky--storm { background: linear-gradient(180deg, #3f5862 0%, #6c8789 55%, #a0b1ab 100%); }
-.sky--day { background: linear-gradient(180deg, #2f8fe6 0%, #8bd0f1 55%, #dff3ea 100%); }
+.sky--day { background: linear-gradient(180deg, #5c8c7c 0%, #a7c9a9 55%, #e0ecc8 100%); }
 .sky--dusk { background: linear-gradient(180deg, #33324e 0%, #955248 52%, #eba35d 100%); }
 .sky--night { background: linear-gradient(180deg, #030b10 0%, #071a1c 55%, #0c2822 100%); }
-.sun { z-index: 0; top: clamp(90px, 15vh, 170px); right: clamp(-40px, 7vw, 180px); width: clamp(210px, 42vmin, 520px); aspect-ratio: 1; border-radius: 50%; background: var(--sun); will-change: transform, opacity; }
+/* One shaft of light falls on the dead land, the same light as the Algreenia crest */
+.shaft { position: fixed; z-index: 0; inset: 0; background: radial-gradient(ellipse 34% 78% at 62% -6%, rgb(190 226 96 / 0.62) 0%, rgb(124 170 66 / 0.3) 42%, rgb(90 130 60 / 0) 74%); will-change: opacity; }
 .world { inset: 0; z-index: 2; width: 100vw; height: 100vh; height: 100lvh; }
 .dunes { z-index: 2; left: 0; right: 0; bottom: 0; width: 100%; height: 44vh; display: none; }
 
@@ -21,16 +22,13 @@ html.no-motion .world, html.no-world .world { display: none; }
 
 .home section, .home > [id="tools"] > section { position: relative; }
 .home section:not(.hero) { z-index: 3; }
+.hero { position: relative; }
 
 /* Loader */
-.loader { display: none; position: fixed; inset: 0; z-index: 120; background: var(--cobalt); color: var(--bone); place-content: center; justify-items: center; gap: 18px; clip-path: circle(150% at 50% 50%); }
+.loader { display: none; position: fixed; inset: 0; z-index: 120; background: var(--crest); color: var(--bone); place-content: center; justify-items: center; gap: 18px; clip-path: circle(150% at 50% 50%); }
 html.has-motion .loader { display: grid; }
-.loader__ring { width: min(46vmin, 240px); stroke: var(--leaf); }
-.loader__ring path { stroke-dasharray: 2600; stroke-dashoffset: 2600; animation: ring 1.5s var(--ease) forwards; }
-.loader__ring path:nth-child(3n) { animation-delay: 0.1s; }
-.loader__ring path:nth-child(3n + 1) { animation-delay: 0.22s; }
-.loader p { font-family: var(--f-mono), monospace; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; }
-@keyframes ring { to { stroke-dashoffset: 0; } }
+.loader__crest { width: min(92vmin, 720px); height: auto; -webkit-mask-image: radial-gradient(closest-side, #000 74%, transparent); mask-image: radial-gradient(closest-side, #000 74%, transparent); animation: crest-in 1.4s var(--ease) both; }
+@keyframes crest-in { from { opacity: 0; transform: scale(0.92); } }
 
 /* Stem chapter nav */
 .stem { position: fixed; z-index: 40; left: clamp(10px, 1.4vw, 24px); top: 50%; transform: translateY(-50%); height: 56vh; width: 150px; pointer-events: none; }
@@ -55,11 +53,15 @@ html.no-motion .hud, html.no-world .hud { display: none; }
 .hero { min-height: 100vh; min-height: 100svh; display: flex; flex-direction: column; padding: clamp(108px, 14vh, 136px) var(--gutter) 84px; }
 .hero__title { position: relative; z-index: 1; font-family: var(--f-display), Georgia, serif; font-weight: 400; color: var(--bone); font-size: clamp(3.4rem, min(14.2vw, 19vh), 15.5rem); line-height: 0.9; letter-spacing: -0.02em; max-width: 8.2em; will-change: transform; }
 html.has-motion .hero__title .w > i { transform: translateY(112%); }
-.hero__meta { position: relative; z-index: 3; margin-top: auto; display: grid; grid-template-columns: 1fr minmax(0, 27em) auto; align-items: end; gap: clamp(16px, 3vw, 44px); padding-left: clamp(0px, 2.5vw, 40px); }
+.hero__meta { position: relative; z-index: 3; color: var(--bone); margin-top: auto; display: grid; grid-template-columns: 1fr minmax(0, 27em) auto; align-items: end; gap: clamp(16px, 3vw, 44px); padding-left: clamp(0px, 2.5vw, 40px); }
 .hero__ar { font-family: var(--f-arabic), serif; font-size: clamp(1.6rem, 2.8vw, 2.7rem); line-height: 1.1; justify-self: start; white-space: nowrap; }
 .hero__lead { font-weight: 500; line-height: 1.34; font-size: clamp(1rem, 0.94rem + 0.3vw, 1.2rem); }
 .hero__cta { display: flex; flex-wrap: wrap; gap: 10px; }
-.hero__cta .btn--ghost { background: rgb(244 248 245 / 0.72); }
+.hero__cta .btn--solid { --btn-hover: var(--pollen); background: var(--leaf); color: var(--moss-950); border-color: var(--leaf); }
+.hero__cta .btn--ghost { --btn-hover: var(--bone); color: var(--bone); background: rgb(10 18 14 / 0.62); }
+.hero__cta .btn--ghost:hover { color: var(--ink); }
+/* Grounds the small type on the mottled earth */
+.hero::after { content: ""; position: absolute; z-index: 2; left: 0; right: 0; bottom: 0; height: 46%; pointer-events: none; background: linear-gradient(180deg, rgb(8 14 11 / 0), rgb(8 14 11 / 0.74)); }
 .hero__scroll { display: none; }
 @media (max-width: 900px) {
   .hero__meta { grid-template-columns: 1fr; padding-left: 0; gap: 12px; }
@@ -78,7 +80,7 @@ html.no-motion .manifesto__in, html.no-world .manifesto__in { position: static; 
 
 /* 02 Steps */
 .steps { padding-block: 16vh 30vh; }
-.steps__head { margin-bottom: 26vh; color: var(--bone); text-shadow: 0 2px 24px rgb(12 47 159 / 0.55); }
+.steps__head { margin-bottom: 26vh; color: var(--bone); text-shadow: 0 2px 24px rgb(8 18 13 / 0.7); }
 .steps__head .display { max-width: 7em; }
 .steps__list { display: grid; gap: clamp(26vh, 38vh, 46vh); }
 .tag { position: relative; width: min(100%, 460px); padding: clamp(26px, 3vw, 38px); padding-top: 54px; background: var(--paper); border-radius: var(--leaf-r); box-shadow: 0 30px 50px -30px rgb(14 31 26 / 0.6); }
@@ -256,12 +258,24 @@ html.no-motion .steps__list, html.no-world .steps__list { gap: 40px; }
 html.no-motion .steps__head, html.no-world .steps__head { margin-bottom: 8vh; }
 html.no-motion .steps, html.no-world .steps { padding-block: 10vh; }
 html.no-motion .manifesto .m, html.no-world .manifesto .m { opacity: 1 !important; }
-html.no-motion .manifesto, html.no-world .manifesto { background: var(--cobalt); position: relative; z-index: 3; }
-html.no-motion .home .steps, html.no-world .home .steps { background: var(--cobalt) !important; }
+html.no-motion .manifesto, html.no-world .manifesto { background: var(--deep); position: relative; z-index: 3; }
+html.no-motion .home .steps, html.no-world .home .steps { background: var(--deep) !important; }
 
 /* A band of haze keeps the manifesto readable when the first tree grows behind it */
 .manifesto__text { position: relative; }
-.manifesto__text::before { content: ""; position: absolute; z-index: -1; left: -100vw; right: -100vw; top: -160px; bottom: -70px; background: linear-gradient(180deg, rgb(20 74 212 / 0.97) 0, rgb(26 86 220 / 0.93) calc(100% - 90px), rgb(30 96 224 / 0)); }
+.manifesto__text::before { content: ""; position: absolute; z-index: -1; left: -100vw; right: -100vw; top: -160px; bottom: -70px; background: linear-gradient(180deg, rgb(13 22 18 / 0.97) 0, rgb(22 33 27 / 0.92) calc(100% - 90px), rgb(30 42 34 / 0)); }
 .manifesto__in { isolation: isolate; }
 .manifesto__in .eyebrow { position: relative; }
 html.no-motion .manifesto__text::before, html.no-world .manifesto__text::before { display: none; }
+
+/* Crest: the Algreenia artwork rises out of the dark */
+.crest { height: 240vh; background: var(--crest); color: var(--bone); }
+.crest__in { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; display: grid; place-items: center; }
+.crest__glow { position: absolute; inset: 0; background: radial-gradient(ellipse 46% 62% at 50% 0%, rgb(160 205 90 / 0.28), rgb(160 205 90 / 0) 72%); }
+.crest__art { position: relative; margin-top: -7vh; width: min(100vmin, 1040px); max-width: 118vw; aspect-ratio: 1; will-change: transform, clip-path; -webkit-mask-image: radial-gradient(closest-side, #000 76%, transparent); mask-image: radial-gradient(closest-side, #000 76%, transparent); }
+.crest__line { position: absolute; left: 0; right: 0; bottom: clamp(24px, 5vh, 56px); text-align: center; text-shadow: 0 1px 14px var(--crest); padding-inline: var(--gutter); font-family: var(--f-accent), serif; font-style: italic; font-size: clamp(1.25rem, 2.2vw, 2rem); }
+html.no-motion .crest, html.no-world .crest { height: auto; }
+html.no-motion .crest__art, html.no-world .crest__art { margin-top: 0; }
+html.no-motion .crest__in, html.no-world .crest__in { position: static; height: auto; padding-block: 8vh 16vh; }
+html.no-motion .crest__line, html.no-world .crest__line { position: static; margin-top: 8px; }
+@media (max-aspect-ratio: 1/1) { .shaft { background: radial-gradient(ellipse 62% 56% at 50% -4%, rgb(190 226 96 / 0.52) 0%, rgb(124 170 66 / 0.24) 46%, rgb(90 130 60 / 0) 76%); } }

@@ -25,10 +25,7 @@
 .tag-link svg { transition: transform 0.35s var(--ease); }
 .tag-link[aria-expanded="true"] svg { transform: rotate(180deg); }
 
-.twig--seal { padding-top: 0; }
-.twig--seal::before { display: none; }
-.seal { display: inline-flex; align-items: center; gap: 8px; min-height: 60px; padding: 6px 18px 6px 6px; margin-top: 8px; text-decoration: none; background: var(--ink); color: var(--bone); font-family: var(--f-display), serif; font-size: 1.32rem; border-radius: 0 26px 0 26px; box-shadow: 0 12px 20px -12px rgb(0 0 0 / 0.7); }
-.seal img { width: 48px; height: 48px; border-radius: 50%; background: var(--paper); }
+.tag-link--word { font-family: var(--f-display), serif; font-weight: 400; font-size: 1.28rem; }
 
 /* Services drop as a vine of smaller tags */
 .vines { position: absolute; top: 100%; left: 50%; width: 248px; margin-left: -124px; padding-top: 16px; }
@@ -44,12 +41,10 @@
 @media (max-width: 1020px) {
   .bough__nav, .bough__auth { display: none; }
   .twig--menu { display: block; }
-  .seal { min-height: 52px; font-size: 1.15rem; }
-  .seal img { width: 40px; height: 40px; }
 }
 
 /* Full-screen menu: climb the stem */
-.climb { position: fixed; inset: 0; width: 100%; height: 100dvh; max-width: none; max-height: none; margin: 0; padding: clamp(28px, 7vh, 60px) var(--gutter) 32px clamp(66px, 16vw, 200px); border: 0; background: var(--cobalt); color: var(--bone); overflow-y: auto; }
+.climb { position: fixed; inset: 0; width: 100%; height: 100dvh; max-width: none; max-height: none; margin: 0; padding: clamp(28px, 7vh, 60px) var(--gutter) 32px clamp(66px, 16vw, 200px); border: 0; background: var(--deep); color: var(--bone); overflow-y: auto; }
 .climb::backdrop { background: transparent; }
 .climb__stem { position: absolute; left: clamp(10px, 5vw, 110px); top: 0; width: 60px; height: 100%; min-height: 720px; }
 .climb__stem path { fill: none; stroke: var(--leaf); stroke-width: 5; stroke-dasharray: 1; stroke-dashoffset: 0; }

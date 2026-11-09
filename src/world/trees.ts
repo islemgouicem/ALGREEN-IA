@@ -7,7 +7,7 @@ import { mulberry32 } from "./noise";
  * instead of low-poly blobs.
  */
 
-export type SpeciesId = "oak" | "pine" | "acacia" | "almond" | "cedar" | "palm";
+export type SpeciesId = "oak" | "pine" | "acacia" | "almond" | "cedar" | "palm" | "snag";
 
 export const SPECIES: SpeciesId[] = ["oak", "pine", "acacia", "almond", "cedar", "palm"];
 
@@ -32,6 +32,8 @@ interface Recipe {
 }
 
 const RECIPES: Record<Exclude<SpeciesId, "cedar" | "palm">, Recipe> = {
+  // Dead tree: bare, twisted, no leaves at all
+  snag: { trunk: 3.6, trunkRadius: 0.3, lean: 0.34, depth: 3, kids: 2, spread: 1.05, ratio: 0.76, up: 0.18, flatten: 0.9, leafRadius: 0, leafSpread: [0, 0, 0], leaves: 0, dark: 0, light: 0, leafSize: 0 },
   // Holm oak: short trunk, dense rounded crown
   oak: { trunk: 3.4, trunkRadius: 0.42, lean: 0.08, depth: 4, kids: 3, spread: 0.72, ratio: 0.74, up: 0.32, flatten: 1, leafRadius: 1.75, leafSpread: [1, 0.72, 1], leaves: 15, dark: 0x1e4a2a, light: 0x7fa648, leafSize: 1 },
   // Aleppo pine: leaning trunk, airy irregular crown
@@ -61,6 +63,7 @@ function branching(recipe: Recipe, seed: number, leafScale: number): TreeTemplat
   let height = 0;
 
   const addLeaves = (tip: V) => {
+    if (recipe.leaves === 0) return;
     const n = Math.max(2, Math.round(recipe.leaves * leafScale));
     for (let i = 0; i < n; i++) {
       const a = r() * Math.PI * 2;
@@ -182,6 +185,7 @@ const growth = /* glsl */ `
   uniform float uFront, uTime, uWind, uFirst;
 
   float growthOf(float z, float seed) {
+    if (aBorn < -1.5) return 1.0 - clamp((z - uFront) / 26.0, 0.0, 1.0);
     if (aBorn < 0.0) return uFirst;
     if (aBorn > 0.0) return clamp((uTime - aBorn) / 2.6, 0.0, 1.0);
     return clamp((z - uFront) / 34.0 + seed * 0.18 - 0.18, 0.0, 1.0);
@@ -378,6 +382,7 @@ export function createTreeDraw(t: TreeTemplate, capacity: number, uniforms: Tree
   const leaves = new THREE.Points(leafGeo, leafMat);
   leaves.frustumCulled = false;
   leaves.renderOrder = 3;
+  leaves.visible = t.leaves.length > 0;
 
   const group = new THREE.Group();
   group.add(branches, leaves);

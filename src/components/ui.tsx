@@ -37,8 +37,8 @@ export function RingArt({ seed, count = 26, className, wobble }: { seed: number;
   );
 }
 
-export function PageHero({ eyebrow, title, lead, tone = "cobalt", seed, children }: {
-  eyebrow: string; title: string; lead?: string; tone?: "cobalt" | "moss" | "rain" | "bloom" | "clay"; seed: number; children?: React.ReactNode;
+export function PageHero({ eyebrow, title, lead, tone = "canopy", seed, children }: {
+  eyebrow: string; title: string; lead?: string; tone?: "canopy" | "moss" | "rain" | "bloom" | "clay"; seed: number; children?: React.ReactNode;
 }) {
   return (
     <section className={`phero phero--${tone}`}>
